@@ -11,4 +11,5 @@
 4. run `node index.js`
 5. inspect the output for remote branches you should remove
 
-## NodeGIT seems to not prune branches on fetch right now, so you might have to manually prune the remote branches
+## Known issues
+- NodeGIT seems to not prune branches on fetch right now, so you might have to manually prune the remote branches
