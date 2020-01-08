@@ -1,7 +1,13 @@
 {
   "dependencies": {
+    "@types/node": "^13.1.4",
     "dotenv": "^8.2.0",
     "node-fetch": "^2.3.0",
-    "nodegit": "^0.26.2"
+    "nodegit": "^0.26.3",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4"
+  },
+  "scripts": {
+    "start": "ts-node index.ts"
   }
 }
