@@ -8,7 +8,7 @@
 1. Check out repository
 2. Copy `.env.dist` to `.env` and setup the required values
 3. run `yarn`
-4. run `node index.js`
+4. run `npm start`
 5. inspect the output for remote branches you should remove
 
 ## Known issues
