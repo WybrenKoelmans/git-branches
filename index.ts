@@ -5,31 +5,33 @@ import { default as fetch } from "node-fetch";
 require('dotenv').config();
 
 function credentials(_url: string, username: string) {
-    if (process.env.SSH_USE_AGENT === 'true') {
+    console.log("getting credentials..");
+    if (process.env['SSH_USE_AGENT'] === 'true') {
         return Cred.sshKeyFromAgent(username);
     }
     return Cred.sshKeyNew(
         username,
-        process.env.SSH_KEY_PUBLIC || OS.homedir() + `\\.ssh\\id_rsa.pub`,
-        process.env.SSH_KEY_PRIVATE || OS.homedir() + `\\.ssh\\id_rsa`,
+        process.env['SSH_KEY_PUBLIC'] || OS.homedir() + `\\.ssh\\id_rsa.pub`,
+        process.env['SSH_KEY_PRIVATE'] || OS.homedir() + `\\.ssh\\id_rsa`,
         "",
     );
 }
 
-async function removeRemotes(branches: string[]) {
+async function removeRemotes(branches: string[], repo: Repository) {
     const remotes = branches.filter(ref => ref.startsWith('refs/remotes/'));
     if (remotes.length > 0) {
         console.log('------------------------');
         console.log('Please remove these branches from your remotes:');
         remotes.map(async ref => {
             const branchName = ref.slice('refs/remotes/'.length);
-            console.log(branchName);
-        })
+            console.log(`${branchName}`);
+        });
     }
 }
 
-async function main() {
-    const repo = await Repository.open(`${process.env.REPO}`);
+async function main(): Promise<number> {
+    const repo = await Repository.open(`${process.env['REPO']}`);
+
     console.log('Fetching and pruning remotes..');
     try {
         await repo.fetchAll({
@@ -39,7 +41,7 @@ async function main() {
             }
         });
     } catch (error) {
-        console.error(`Could not fetch from remotes!`);
+        console.error(`Could not fetch from remotes!`, error);
     }
 
     console.log('Done.');
@@ -48,10 +50,13 @@ async function main() {
     const references: string[] = await Reference.list(repo);
     const branches = references.filter(ref => ref.includes('#'));
     const miscBranches = references.filter(ref => !ref.includes('#')).filter(ref => ref.includes('refs/heads/'));
-    const ids = branches.map(ref => ref.match(`#(\\d+)`)[1]);
+    const ids = branches.map(ref => {
+        const match = ref.match(`#(\\d+)`);
+        return match ? match[1] : null;
+    });
     // console.log(ids);
 
-    var url = `https://${process.env.TP_DOMAIN}.tpondemand.com/api/v2/Assignable/?where=id in [${ids.join(',')}]&select={id,name,EntityState.isFinal,EntityState.name as state,name,EntityType.name as type}&take=1000&format=json&token=${process.env.TP_TOKEN}`;
+    var url = `https://${process.env['TP_DOMAIN']}.tpondemand.com/api/v2/Assignable/?where=id in [${ids.join(',')}]&select={id,name,EntityState.isFinal,EntityState.name as state,name,EntityType.name as type}&take=1000&format=json&token=${process.env['TP_TOKEN']}`;
     try {
         const raw = await fetch(url);
         const response: {
@@ -90,7 +95,7 @@ async function main() {
             }
         });
 
-        await removeRemotes(branchesDone);
+        await removeRemotes(branchesDone, repo);
 
         console.log('------------------------');
         console.log('These branches are not matched to anything on target process:');
@@ -99,5 +104,11 @@ async function main() {
         console.log(e);
         return 1;
     }
+
+    return 0;
 }
-main();
+
+const resultPromise = main();
+resultPromise.then((result) => {
+    process.exit(result);
+});
