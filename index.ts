@@ -17,7 +17,7 @@ function credentials(_url: string, username: string) {
     );
 }
 
-async function removeRemotes(branches: string[], repo: Repository) {
+async function removeRemotes(branches: string[]) {
     const remotes = branches.filter(ref => ref.startsWith('refs/remotes/'));
     if (remotes.length > 0) {
         console.log('------------------------');
@@ -95,7 +95,7 @@ async function main(): Promise<number> {
             }
         });
 
-        await removeRemotes(branchesDone, repo);
+        await removeRemotes(branchesDone);
 
         console.log('------------------------');
         console.log('These branches are not matched to anything on target process:');
