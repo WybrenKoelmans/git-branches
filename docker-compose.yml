@@ -1,0 +1,8 @@
+services:
+  git-branches:
+    build: .
+    image: git-branches
+    container_name: git-branches
+    volumes:
+      - ".:/app"
+    

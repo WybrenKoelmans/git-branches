@@ -54,9 +54,9 @@ async function main(): Promise<number> {
         const match = ref.match(`#(\\d+)`);
         return match ? match[1] : null;
     });
-    // console.log(ids);
+    console.log(ids);
+    return;
 
-    var url = `https://${process.env['TP_DOMAIN']}.tpondemand.com/api/v2/Assignable/?where=id in [${ids.join(',')}]&select={id,name,EntityState.isFinal,EntityState.name as state,name,EntityType.name as type}&take=1000&format=json&token=${process.env['TP_TOKEN']}`;
     try {
         const raw = await fetch(url);
         const response: {
@@ -98,7 +98,7 @@ async function main(): Promise<number> {
         await removeRemotes(branchesDone);
 
         console.log('------------------------');
-        console.log('These branches are not matched to anything on target process:');
+        console.log('These branches are not matched to anything on JIRA:');
         miscBranches.forEach(ref => console.log(ref.slice('refs/heads/'.length)));
     } catch (e) {
         console.log(e);

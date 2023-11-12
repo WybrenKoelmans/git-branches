@@ -4,12 +4,13 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "npm",
-            "script": "start",
+            "label": "build",
+            "type": "shell",
+            "command": "docker build . -t git-branches && docker run --rm git-branches",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
         }
     ]
 }
